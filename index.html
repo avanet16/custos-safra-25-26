@@ -3,34 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel de Custos - Safra 2025/2026</title>
+    <title>Painel Consolidado - Fazenda Medonho</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Estilos Globais e Responsividade */
-        body {
-            background-color: #f8fafc; /* slate-50 */
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Melhorias para Mobile */
+        body { background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        
         @media (max-width: 768px) {
-            .container { padding: 1rem !important; }
+            .container { padding: 0.75rem !important; }
             .card { margin-bottom: 1rem; }
-            h1 { font-size: 1.25rem !important; } 
-            .chart-container { height: 250px !important; } 
-            
-            .chart-legend-mobile { 
-                display: flex; 
-                flex-wrap: wrap; 
-                justify-content: center; 
-                font-size: 0.75rem; 
-            }
+            h1 { font-size: 1.1rem !important; } 
+            .chart-container { height: 280px !important; } 
+            input[type="number"] { font-size: 1.1rem !important; padding: 0.25rem !important; }
+            .sticky-col, .sticky-col-2 { position: static !important; background-color: transparent !important; box-shadow: none !important; }
+            .col-beneficiario { display: none; }
+            th, td { padding: 0.5rem !important; font-size: 0.75rem !important; }
         }
 
-        /* Estilos de Impressão */
+        @media (min-width: 769px) {
+            .sticky-col { position: sticky; left: 0; background-color: #ffffff; z-index: 10; }
+            .sticky-col-2 { position: sticky; left: 3.5rem; background-color: #ffffff; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+            th.sticky-col, th.sticky-col-2 { background-color: #f1f5f9; z-index: 20; }
+        }
+
         @media print {
             @page { size: auto; margin: 5mm; }
             body { background-color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 12px; width: 100%; }
@@ -39,487 +36,614 @@
             .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ddd; box-shadow: none; margin-bottom: 15px; }
             tr.product-details { display: table-row !important; }
             .details-toggle-icon { display: none; }
-            h1, h2, h3 { color: #064e3b !important; } 
+            .sticky-col, .sticky-col-2 { position: static !important; box-shadow: none !important; }
             canvas { max-height: none !important; height: auto !important; width: 100% !important; }
             .overflow-x-auto { overflow-x: visible !important; }
-            
-            /* Ajuste para inputs na impressão */
-            input {
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                font-weight: bold;
-                color: black !important;
-                width: auto !important;
-                text-align: right;
-            }
+            input { border: none !important; width: auto !important; text-align: right; }
             .input-group { border: 1px solid #ddd; }
+            .col-beneficiario { display: table-cell !important; } 
+            #view-soja, #view-safrinha { display: block !important; }
+            #tab-seeds-soja, #tab-seeds-saf { display: block !important; margin-top: 20px; }
         }
 
         .currency { font-family: 'Courier New', Courier, monospace; }
         .product-details { transition: all 0.3s ease-in-out; }
+        
+        /* Main Tabs */
+        .main-tab-active-soja { border-bottom: 4px solid #10b981; color: #047857; font-weight: bold; background-color: #ecfdf5; }
+        .main-tab-active-safrinha { border-bottom: 4px solid #f59e0b; color: #b45309; font-weight: bold; background-color: #fffbeb; }
+        .main-tab-inactive { color: #6b7280; hover:bg-gray-100; border-bottom: 4px solid transparent; }
+        
+        /* Inner Tabs Safrinha */
+        .inner-tab-active-saf { border-bottom: 3px solid #d97706; color: #d97706; font-weight: bold; background-color: #fffbeb; }
+        .inner-tab-inactive-saf { color: #6b7280; hover:text-amber-600; }
+        
+        /* Inner Tabs Soja */
+        .inner-tab-active-soja { border-bottom: 3px solid #059669; color: #059669; font-weight: bold; background-color: #ecfdf5; }
+        .inner-tab-inactive-soja { color: #6b7280; hover:text-emerald-600; }
+        
+        .seed-highlight { background-color: #ecfdf5; border-left: 4px solid #10b981; }
     </style>
 </head>
-<body class="text-slate-800 antialiased">
+<body class="text-slate-800 antialiased pb-10">
 
-    <!-- Navbar / Header Responsivo -->
-    <nav class="bg-emerald-900 text-white p-4 shadow-lg no-print sticky top-0 z-50">
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white p-4 shadow-lg no-print sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-                <i class="fa-solid fa-tractor text-2xl text-yellow-400"></i>
+                <i class="fa-solid fa-chart-line text-2xl text-blue-400"></i>
                 <div class="text-center md:text-left">
-                    <h1 class="text-lg md:text-xl font-bold leading-tight">PAINEL GERENCIAL DE CUSTOS - FAZ. AGROPECUÁRIA MEDONHO</h1>
-                    <p class="text-[10px] md:text-xs text-emerald-200 uppercase tracking-widest">Safra 2025/2026</p>
+                    <h1 class="text-lg md:text-xl font-bold leading-tight">FAZENDA AGROPECUÁRIA MEDONHO</h1>
+                    <p class="text-[10px] md:text-xs text-slate-300 uppercase tracking-widest">Painel Consolidado de Custos</p>
                 </div>
             </div>
             <div class="flex gap-2 w-full md:w-auto justify-center">
-                <button onclick="toggleAllDetails()" class="flex-1 md:flex-none bg-emerald-800/50 text-white px-3 py-2 rounded text-sm hover:bg-emerald-700 transition border border-emerald-700 active:scale-95">
-                    <i class="fa-solid fa-list-check md:mr-1"></i> <span class="hidden md:inline">Expandir</span> Detalhes
-                </button>
-                <button onclick="window.print()" class="flex-1 md:flex-none bg-white text-emerald-900 px-4 py-2 rounded font-bold hover:bg-emerald-50 transition active:scale-95 shadow-sm">
-                    <i class="fa-solid fa-file-pdf md:mr-1"></i> PDF
+                <button onclick="window.print()" class="flex-1 md:flex-none bg-white text-slate-900 px-4 py-2 rounded font-bold hover:bg-slate-200 transition active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-file-pdf md:mr-1"></i> Exportar PDF
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Header Impressão (Oculto na tela) -->
-    <div class="hidden print:block container mx-auto p-6 pb-0">
-        <div class="flex justify-between items-end border-b-2 border-emerald-900 pb-4 mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-emerald-900">PAINEL DE CUSTOS & VIABILIDADE</h1>
-                <p class="text-gray-600 mt-1 text-lg">Safra 2025/2026 | Insumos Agrícolas (Agrex)</p>
-            </div>
-            <div class="text-right">
-                <p class="text-sm text-gray-500">Data de Emissão</p>
-                <p class="font-bold text-xl text-emerald-900">08/01/2026</p>
+    <!-- Main Tab Navigation -->
+    <div class="bg-white shadow-sm border-b border-gray-200 sticky top-[72px] md:top-[76px] z-40 no-print">
+        <div class="container mx-auto px-2 md:px-6">
+            <div class="flex overflow-x-auto">
+                <button onclick="switchMainTab('soja')" id="btn-main-soja" class="main-tab-active-soja flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-leaf"></i> Safra 25/26 (Soja)
+                </button>
+                <button onclick="switchMainTab('safrinha')" id="btn-main-safrinha" class="main-tab-inactive flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-seedling text-yellow-500"></i> Safrinha 2026 (Milho)
+                </button>
             </div>
         </div>
     </div>
 
-    <main class="container mx-auto p-4 md:p-6">
-
-        <!-- BARRA DE ANÁLISE AGRONÔMICA (SIMULAÇÃO) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden input-group card">
-            <div class="bg-gray-50 px-4 md:px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+    <!-- ========================================== -->
+    <!-- VIEW: SAFRA (SOJA)                         -->
+    <!-- ========================================== -->
+    <main id="view-soja" class="container mx-auto p-3 md:p-6 block">
+        <!-- Simulação -->
+        <div class="bg-white rounded-xl shadow-sm border border-emerald-100 mb-6 overflow-hidden input-group card">
+            <div class="bg-emerald-50 px-4 md:px-6 py-3 border-b border-emerald-100 flex justify-between items-center">
                 <h3 class="font-bold text-emerald-800 flex items-center gap-2 text-sm md:text-base">
-                    <i class="fa-solid fa-chart-line"></i> Análise de Viabilidade (Simulação)
+                    <i class="fa-solid fa-calculator"></i> Viabilidade Soja
                 </h3>
-                <span class="text-[10px] md:text-xs text-gray-500 no-print"><i class="fa-solid fa-circle-info mr-1"></i>Edite os valores para simular</span>
             </div>
-            <div class="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 items-center">
-                
-                <!-- Inputs -->
-                <div class="flex flex-col gap-1 border-r border-gray-100 pr-0 md:pr-4">
-                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Área Plantada</label>
-                    <div class="flex items-center">
-                        <input type="number" id="areaInput" value="1715" class="text-xl md:text-2xl font-bold text-gray-800 w-full md:w-24 border-b border-gray-300 focus:outline-none focus:border-emerald-500 bg-transparent transition-colors" oninput="calculateMetrics()">
-                        <span class="ml-1 text-gray-400 font-medium">ha</span>
-                    </div>
+            <div class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 items-center">
+                <div class="flex flex-col gap-1 border-r border-gray-100 pr-2 md:pr-4">
+                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Área (ha)</label>
+                    <input type="number" id="areaInputSoja" value="1715" class="text-lg md:text-2xl font-bold text-gray-800 w-full border-b border-gray-300 focus:outline-none focus:border-emerald-500 bg-transparent p-1" oninput="calcSoja()">
                 </div>
-
-                <div class="flex flex-col gap-1 border-r border-gray-100 pr-0 md:pr-4">
-                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Preço Soja (Ref.)</label>
-                    <div class="flex items-center">
-                        <span class="mr-1 text-gray-400 font-medium">R$</span>
-                        <input type="number" id="priceInput" value="108.00" step="0.50" class="text-xl md:text-2xl font-bold text-gray-800 w-full md:w-24 border-b border-gray-300 focus:outline-none focus:border-emerald-500 bg-transparent transition-colors" oninput="calculateMetrics()">
-                    </div>
+                <div class="flex flex-col gap-1 border-r border-gray-100 pr-2 md:pr-4">
+                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Preço Soja (R$)</label>
+                    <input type="number" id="priceInputSoja" value="108.00" step="0.50" class="text-lg md:text-2xl font-bold text-gray-800 w-full border-b border-gray-300 focus:outline-none focus:border-emerald-500 bg-transparent p-1" oninput="calcSoja()">
                 </div>
-
-                <!-- Outputs (Calculados) -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-[10px] md:text-xs font-bold text-emerald-600 uppercase">Custo Médio / ha</label>
-                    <div class="text-xl md:text-2xl font-bold text-emerald-700" id="costPerHa">R$ 0,00</div>
+                    <label class="text-[10px] md:text-xs font-bold text-emerald-600 uppercase">Custo / ha</label>
+                    <div class="text-lg md:text-2xl font-bold text-emerald-700 truncate" id="costPerHaSoja">R$ 0,00</div>
                 </div>
-
-                <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
-                    <label class="text-[10px] md:text-xs font-bold text-yellow-700 uppercase flex justify-between">
-                        Ponto de Equilíbrio
-                        <i class="fa-solid fa-scale-balanced"></i>
-                    </label>
-                    <div class="text-2xl md:text-3xl font-extrabold text-yellow-600 mt-1" id="breakEven">0,0 sc/ha</div>
-                    <p class="text-[9px] md:text-[10px] text-yellow-600 mt-1">Produtividade necessária para pagar o custo.</p>
+                <div class="bg-yellow-50 p-2 md:p-3 rounded-lg border border-yellow-100">
+                    <label class="text-[9px] md:text-xs font-bold text-yellow-700 uppercase flex justify-between">Breakeven <i class="fa-solid fa-scale-balanced hidden md:inline"></i></label>
+                    <div class="text-xl md:text-3xl font-extrabold text-yellow-600 mt-1 truncate" id="breakEvenSoja">0,0</div>
+                    <p class="text-[8px] md:text-[10px] text-yellow-600 mt-0.5">scs/ha p/ pagar</p>
                 </div>
-
             </div>
         </div>
-        
-        <!-- KPI Cards Grid Responsivo -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-            <!-- Card 1 -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-600 card hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Investimento Total</p>
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 7.211.808,98</h2>
-                    </div>
-                    <div class="bg-emerald-50 p-3 rounded-full text-emerald-600">
-                        <i class="fa-solid fa-money-bill-wheat text-xl"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-400 mt-3 font-medium flex items-center justify-between">
-                    <span><i class="fa-solid fa-sack-dollar mr-1"></i> Total em Sacas:</span>
-                    <strong class="text-gray-700" id="totalSacks">0 scs</strong>
-                </p>
-            </div>
 
-            <!-- Card 2 -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500 card hover:shadow-md transition-shadow">
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-600 card">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Vencimento Safra (30/04)</p>
+                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Investimento Soja</p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 7.270.158,98</h2>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-full text-emerald-600"><i class="fa-solid fa-money-bill-wheat text-xl"></i></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-3 font-medium flex justify-between"><span>Total em Sacas:</span><strong id="totalSacksSoja">0 scs</strong></p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500 card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Vencimento (30/04)</p>
                         <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 6.951.808,98</h2>
                     </div>
-                    <div class="bg-orange-50 p-3 rounded-full text-orange-600">
-                        <i class="fa-regular fa-calendar-check text-xl"></i>
-                    </div>
+                    <div class="bg-orange-50 p-3 rounded-full text-orange-600"><i class="fa-regular fa-calendar-check text-xl"></i></div>
                 </div>
-                <p class="text-xs text-orange-600/80 mt-3 font-bold flex items-center">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> 96,4% do Total
-                </p>
+                <p class="text-xs text-orange-600/80 mt-3 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 95,6% do Total</p>
             </div>
-
-            <!-- Card 3 -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 card hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 card sm:col-span-2 lg:col-span-1">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Fornecedor Principal</p>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800 mt-1">AGREX DO BRASIL</h2>
                         <p class="text-xs text-gray-500 mt-0.5">Base: Balsas - MA</p>
                     </div>
-                    <div class="bg-blue-50 p-3 rounded-full text-blue-600">
-                        <i class="fa-solid fa-handshake text-xl"></i>
-                    </div>
+                    <div class="bg-blue-50 p-3 rounded-full text-blue-600"><i class="fa-solid fa-handshake text-xl"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Charts Grid Responsivo -->
+        <!-- Charts -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 break-inside-avoid">
-            <!-- Gráfico Sócios -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 card">
                 <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
-                    <i class="fa-solid fa-users mr-2 text-emerald-600 bg-emerald-50 p-1.5 rounded-md"></i>Custos por Sócio
+                    <i class="fa-solid fa-users mr-2 text-emerald-600 bg-emerald-50 p-1.5 rounded-md"></i>Custos por Sócio (Soja)
                 </h3>
-                <div class="h-64 md:h-80 w-full chart-container">
-                    <canvas id="producerChart"></canvas>
-                </div>
+                <div class="h-64 md:h-80 w-full chart-container"><canvas id="chartProducerSoja"></canvas></div>
             </div>
-            
-            <!-- Gráfico Pizza -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 card">
                 <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
-                    <i class="fa-solid fa-chart-pie mr-2 text-emerald-600 bg-emerald-50 p-1.5 rounded-md"></i>Distribuição de Custos
+                    <i class="fa-solid fa-chart-pie mr-2 text-emerald-600 bg-emerald-50 p-1.5 rounded-md"></i>Fornecedores (Soja)
                 </h3>
-                <div class="h-64 md:h-80 w-full flex justify-center chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
+                <div class="h-64 md:h-80 w-full flex justify-center chart-container"><canvas id="chartCatSoja"></canvas></div>
             </div>
         </div>
 
-        <!-- Tabela Responsiva com Scroll -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden card">
-            <div class="p-4 md:p-6 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 print:bg-white print:border-b-2 print:border-black">
-                <div>
-                    <h3 class="text-base md:text-lg font-bold text-gray-700 flex items-center gap-2">
-                        <i class="fa-solid fa-table-list text-emerald-600"></i> Resumo Detalhado
-                    </h3>
-                    <p class="text-xs text-gray-500 mt-1 hidden md:block">Produtos agrupados por categoria (Visualização em Etiquetas)</p>
-                </div>
-                <span class="text-[10px] md:text-xs bg-emerald-100 text-emerald-800 py-1 px-3 rounded-full font-semibold no-print self-start md:self-auto">
-                    <i class="fa-solid fa-arrow-pointer mr-1"></i> Clique na linha para Detalhes
-                </span>
+        <!-- Tabs Navigation Soja -->
+        <div class="mb-4 no-print px-2 md:px-0">
+            <div class="flex border-b border-gray-200 overflow-x-auto">
+                <button onclick="switchInnerTabSoja('finance')" id="btn-finance-soja" class="inner-tab-active-soja px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg whitespace-nowrap">
+                    <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Financeiro Soja
+                </button>
+                <button onclick="switchInnerTabSoja('seeds')" id="btn-seeds-soja" class="inner-tab-inactive-soja px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap">
+                    <i class="fa-solid fa-leaf mr-2"></i>Banco de Sementes
+                </button>
             </div>
-            
-            <!-- Wrapper para scroll horizontal no mobile -->
+        </div>
+
+        <!-- TAB 1: Financeiro Soja -->
+        <div id="tab-finance-soja" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden card rounded-tl-none">
+            <div class="p-4 md:p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center gap-3">
+                <h3 class="text-base md:text-lg font-bold text-gray-700"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i> Detalhamento Soja</h3>
+                <button onclick="toggleAllDetailsSoja()" class="text-[10px] md:text-xs bg-emerald-100 text-emerald-800 py-1 px-3 rounded-full font-semibold no-print">Expandir Tudo</button>
+            </div>
             <div class="overflow-x-auto w-full">
-                <table class="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+                <table class="w-full text-left border-collapse min-w-[700px] md:min-w-full">
                     <thead>
                         <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th class="p-3 md:p-4 font-semibold w-10 no-print text-center"><i class="fa-solid fa-chevron-down"></i></th>
-                            <th class="p-3 md:p-4 font-semibold">Grupo de Compras</th>
-                            <th class="p-3 md:p-4 font-semibold">Beneficiários</th>
+                            <th class="p-3 md:p-4 font-semibold w-10 text-center sticky-col left-0 z-20"><i class="fa-solid fa-chevron-down"></i></th>
+                            <th class="p-3 md:p-4 font-semibold sticky-col-2 left-10 z-20">Fornecedor / Pacote</th>
+                            <th class="p-3 md:p-4 font-semibold col-beneficiario">Beneficiários</th>
                             <th class="p-3 md:p-4 font-semibold text-center">Vencimento</th>
-                            <th class="p-3 md:p-4 font-semibold text-right">Valor Total (R$)</th>
+                            <th class="p-3 md:p-4 font-semibold text-right">Total (R$)</th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm text-gray-700 divide-y divide-gray-100" id="contractsTableBody">
-                        <!-- JS Generated -->
-                    </tbody>
-                    <tfoot class="bg-emerald-50 font-bold text-emerald-900 border-t-2 border-emerald-200 print:bg-gray-100">
+                    <tbody class="text-sm text-gray-700 divide-y divide-gray-100" id="tbodySoja"></tbody>
+                    <tfoot class="bg-emerald-50 font-bold text-emerald-900 border-t-2 border-emerald-200">
                         <tr>
-                            <td colspan="4" class="p-3 md:p-4 text-right uppercase text-sm md:text-lg">Total Geral</td>
-                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 7.211.808,98</td>
+                            <td colspan="3" class="p-3 md:p-4 text-right uppercase text-sm md:text-lg">Total Geral Soja</td>
+                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 7.270.158,98</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
 
-        <div class="mt-8 text-center text-xs text-gray-400 no-print pb-8">
-            <p>Gerado com base nos documentos Agrex (Contratos + Pedidos + Repiques).</p>
+        <!-- TAB 2: Sementes Soja -->
+        <div id="tab-seeds-soja" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden card rounded-tl-none">
+            <div class="p-6 border-b border-gray-100 bg-emerald-50 flex items-center gap-3">
+                <div class="p-2 bg-white rounded-lg shadow-sm text-emerald-600"><i class="fa-solid fa-seedling text-xl"></i></div>
+                <div>
+                    <h3 class="text-lg font-bold text-emerald-900">Sementes - Safra 25/26 (Soja)</h3>
+                    <p class="text-xs text-emerald-700">Resumo consolidado das variedades adquiridas (Safra + Repiques)</p>
+                </div>
+            </div>
+            <div class="p-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+                <!-- Variedades Soja -->
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">MONSANTO IPRO</span>
+                    <h4 class="text-sm md:text-base font-bold text-gray-800">80182RSF</h4>
+                    <span class="text-2xl md:text-3xl font-bold text-emerald-600 my-1">57</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">UNIDADES</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">MONSANTO IPRO</span>
+                    <h4 class="text-sm md:text-base font-bold text-gray-800">84186RSF</h4>
+                    <span class="text-2xl md:text-3xl font-bold text-emerald-600 my-1">53</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">UNIDADES</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">MONSANTO IPRO</span>
+                    <h4 class="text-sm md:text-base font-bold text-gray-800">O820</h4>
+                    <span class="text-2xl md:text-3xl font-bold text-emerald-600 my-1">14</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">UNIDADES</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">MONSANTO IPRO</span>
+                    <h4 class="text-sm md:text-base font-bold text-gray-800">82178RSF</h4>
+                    <span class="text-2xl md:text-3xl font-bold text-emerald-600 my-1">10</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">UNIDADES</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">MONSANTO IPRO</span>
+                    <h4 class="text-sm md:text-base font-bold text-gray-800">67168RSF</h4>
+                    <span class="text-2xl md:text-3xl font-bold text-emerald-600 my-1">1</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">UNIDADE</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-between items-center">
+                <span class="font-bold text-gray-600 uppercase text-sm">Total de Sementes</span>
+                <span class="text-xl font-bold text-gray-800">135 UNIDADES</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VIEW: SAFRINHA (MILHO)                     -->
+    <!-- ========================================== -->
+    <main id="view-safrinha" class="container mx-auto p-3 md:p-6 hidden">
+        <!-- Simulação -->
+        <div class="bg-white rounded-xl shadow-sm border border-amber-100 mb-6 overflow-hidden input-group card">
+            <div class="bg-amber-50 px-4 md:px-6 py-3 border-b border-amber-100 flex justify-between items-center">
+                <h3 class="font-bold text-amber-800 flex items-center gap-2 text-sm md:text-base">
+                    <i class="fa-solid fa-calculator"></i> Viabilidade Milho
+                </h3>
+            </div>
+            <div class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 items-center">
+                <div class="flex flex-col gap-1 border-r border-gray-100 pr-2 md:pr-4">
+                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Área (ha)</label>
+                    <input type="number" id="areaInputSafrinha" value="1715" class="text-lg md:text-2xl font-bold text-gray-800 w-full border-b border-gray-300 focus:outline-none focus:border-amber-500 bg-transparent p-1" oninput="calcSafrinha()">
+                </div>
+                <div class="flex flex-col gap-1 border-r border-gray-100 pr-2 md:pr-4">
+                    <label class="text-[10px] md:text-xs font-bold text-gray-500 uppercase">Preço Milho (R$)</label>
+                    <input type="number" id="priceInputSafrinha" value="45.00" step="0.50" class="text-lg md:text-2xl font-bold text-gray-800 w-full border-b border-gray-300 focus:outline-none focus:border-amber-500 bg-transparent p-1" oninput="calcSafrinha()">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] md:text-xs font-bold text-amber-600 uppercase">Custo / ha</label>
+                    <div class="text-lg md:text-2xl font-bold text-amber-700 truncate" id="costPerHaSafrinha">R$ 0,00</div>
+                </div>
+                <div class="bg-yellow-50 p-2 md:p-3 rounded-lg border border-yellow-100">
+                    <label class="text-[9px] md:text-xs font-bold text-yellow-700 uppercase flex justify-between">Breakeven <i class="fa-solid fa-scale-balanced hidden md:inline"></i></label>
+                    <div class="text-xl md:text-3xl font-extrabold text-yellow-600 mt-1 truncate" id="breakEvenSafrinha">0,0</div>
+                    <p class="text-[8px] md:text-[10px] text-yellow-600 mt-0.5">scs/ha p/ pagar</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-600 card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Custo Safrinha</p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 2.503.182,64</h2>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-full text-amber-600"><i class="fa-solid fa-sack-dollar text-xl"></i></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-3 font-medium flex justify-between"><span>Total em Sacas:</span><strong id="totalSacksSafrinha">0 scs</strong></p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500 card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Vencimentos</p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">Ago/2026</h2>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-full text-orange-600"><i class="fa-regular fa-calendar-check text-xl"></i></div>
+                </div>
+                <p class="text-xs text-orange-600/80 mt-3 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 100% Concentrado</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 card sm:col-span-2 lg:col-span-1">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Fornecedor Principal</p>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 mt-1">AGREX DO BRASIL</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Representa 67% do Custo</p>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-full text-blue-600"><i class="fa-solid fa-handshake text-xl"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 break-inside-avoid">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 card">
+                <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
+                    <i class="fa-solid fa-users mr-2 text-amber-600 bg-amber-50 p-1.5 rounded-md"></i>Custos por Sócio (Safrinha)
+                </h3>
+                <div class="h-64 md:h-80 w-full chart-container"><canvas id="chartProducerSafrinha"></canvas></div>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 card">
+                <h3 class="text-base md:text-lg font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
+                    <i class="fa-solid fa-chart-pie mr-2 text-amber-600 bg-amber-50 p-1.5 rounded-md"></i>Fornecedores (Safrinha)
+                </h3>
+                <div class="h-64 md:h-80 w-full flex justify-center chart-container"><canvas id="chartCatSafrinha"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation Safrinha -->
+        <div class="mb-4 no-print px-2 md:px-0">
+            <div class="flex border-b border-gray-200 overflow-x-auto">
+                <button onclick="switchInnerTabSaf('finance')" id="btn-finance-saf" class="inner-tab-active-saf px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg whitespace-nowrap">
+                    <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Financeiro Safrinha
+                </button>
+                <button onclick="switchInnerTabSaf('seeds')" id="btn-seeds-saf" class="inner-tab-inactive-saf px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap border-b border-transparent">
+                    <i class="fa-solid fa-leaf mr-2"></i>Banco de Sementes
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: Financeiro Safrinha -->
+        <div id="tab-finance-saf" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden card rounded-tl-none">
+            <div class="p-4 md:p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center gap-3">
+                <h3 class="text-base md:text-lg font-bold text-gray-700"><i class="fa-solid fa-table-list text-amber-600 mr-2"></i> Detalhamento Safrinha</h3>
+                <button onclick="toggleAllDetailsSafrinha()" class="text-[10px] md:text-xs bg-amber-100 text-amber-800 py-1 px-3 rounded-full font-semibold no-print">Expandir Tudo</button>
+            </div>
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[700px] md:min-w-full">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="p-3 md:p-4 font-semibold w-10 text-center sticky-col left-0 z-20"><i class="fa-solid fa-chevron-down"></i></th>
+                            <th class="p-3 md:p-4 font-semibold sticky-col-2 left-10 z-20">Fornecedor / Pacote</th>
+                            <th class="p-3 md:p-4 font-semibold col-beneficiario">Beneficiários</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">Vencimento</th>
+                            <th class="p-3 md:p-4 font-semibold text-right">Total (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700 divide-y divide-gray-100" id="tbodySafrinha"></tbody>
+                    <tfoot class="bg-amber-50 font-bold text-amber-900 border-t-2 border-amber-200">
+                        <tr>
+                            <td colspan="3" class="p-3 md:p-4 text-right uppercase text-sm md:text-lg">Total Geral Safrinha</td>
+                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 2.503.182,64</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: Sementes Safrinha -->
+        <div id="tab-seeds-saf" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden card rounded-tl-none">
+            <div class="p-6 border-b border-gray-100 bg-green-50 flex items-center gap-3">
+                <div class="p-2 bg-white rounded-lg shadow-sm text-green-600"><i class="fa-solid fa-seedling text-xl"></i></div>
+                <div>
+                    <h3 class="text-lg font-bold text-green-900">Sementes - Safrinha 2026</h3>
+                    <p class="text-xs text-green-700">Resumo consolidado das variedades</p>
+                </div>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-2">AGREX</span>
+                    <h4 class="text-lg font-bold text-gray-800">MG540PWU</h4>
+                    <span class="text-3xl font-bold text-green-600 my-2">338</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-bold">SACOS</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-2">DEKALB (BAYER)</span>
+                    <h4 class="text-lg font-bold text-gray-800">DKB360 PRO3</h4>
+                    <span class="text-3xl font-bold text-green-600 my-2">360</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-bold">SACOS</span>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                    <span class="text-xs font-bold text-gray-400 uppercase mb-2">PRODUTÉCNICA</span>
+                    <h4 class="text-lg font-bold text-gray-800">BREVANT B2701 PWC</h4>
+                    <span class="text-3xl font-bold text-green-600 my-2">195</span>
+                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-bold">SACOS</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-between items-center">
+                <span class="font-bold text-gray-600 uppercase text-sm">Total de Sementes</span>
+                <span class="text-xl font-bold text-gray-800">893 SACOS</span>
+            </div>
         </div>
     </main>
 
     <script>
-        // --- CÁLCULOS AGRONÔMICOS ---
-        const totalInvestment = 7211808.98;
+        const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        Chart.register(ChartDataLabels);
+        const getFontSize = () => window.innerWidth < 768 ? 10 : 12;
 
-        function calculateMetrics() {
-            const area = parseFloat(document.getElementById('areaInput').value) || 1;
-            const price = parseFloat(document.getElementById('priceInput').value) || 1;
-
-            // 1. Custo por Hectare
-            const costHa = totalInvestment / area;
-            document.getElementById('costPerHa').innerText = costHa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            // 2. Total em Sacas
-            const totalSacks = totalInvestment / price;
-            document.getElementById('totalSacks').innerText = totalSacks.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + " scs";
-
-            // 3. Breakeven (Sacas por Hectare)
-            const breakEven = totalSacks / area;
-            document.getElementById('breakEven').innerText = breakEven.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " sc/ha";
+        // ==========================================
+        // MAIN TABS LOGIC
+        // ==========================================
+        function switchMainTab(tab) {
+            document.getElementById('view-soja').style.display = tab === 'soja' ? 'block' : 'none';
+            document.getElementById('view-safrinha').style.display = tab === 'safrinha' ? 'block' : 'none';
+            
+            const btnSoja = document.getElementById('btn-main-soja');
+            const btnSaf  = document.getElementById('btn-main-safrinha');
+            
+            if(tab === 'soja') {
+                btnSoja.className = "main-tab-active-soja flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2";
+                btnSaf.className  = "main-tab-inactive flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2";
+                
+                if(chartProdSoja) chartProdSoja.update();
+                if(chartCatSoja) chartCatSoja.update();
+            } else {
+                btnSoja.className = "main-tab-inactive flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2";
+                btnSaf.className  = "main-tab-active-safrinha flex-1 px-4 py-4 text-sm md:text-base whitespace-nowrap transition-colors flex items-center justify-center gap-2";
+                
+                if(chartProdSaf) chartProdSaf.update();
+                if(chartCatSaf) chartCatSaf.update();
+            }
         }
 
-        // --- DADOS ---
-        const pacoteSafraProdutos = {
-            sementes: [
-                { n: "SEMENTE DOMÍNIO (84I86RSF IPRO)", q: "53 BAG" },
-                { n: "SEMENTE OLIMPO (80182RSF IPRO)", q: "48 BAG" },
-                { n: "SEMENTE NEO820 (O820 IPRO)", q: "14 BAG" },
-                { n: "SEMENTE DM82i78 (DONMARIO)", q: "10 BAG" },
-                { n: "SEMENTE GUEPARDO (67168RSF)", q: "01 BAG" }
-            ],
-            adubos: [
-                { n: "SULFURGRAN 90 (Enxofre)", q: "40.000 KG" },
-                { n: "PROD MIB-FROELICH K", q: "35.000 KG" },
-                { n: "FERT KCL 00.00.60 BB", q: "343 TON" }, 
-                { n: "FERT SSP 00.19.00 BB", q: "379 TON" },
-                { n: "FERT TSP 00.46.00 BB", q: "222 TON" }
-            ],
-            quimicos: [
-                { n: "GLYPHOTAL WG 10KG", q: "6.860 KG" },
-                { n: "UNIZEB GOLD 15KG", q: "5.160 KG" },
-                { n: "ASSIST 20L", q: "1.780 L" },
-                { n: "BLOWOUT 20L", q: "1.720 L" },
-                { n: "CLETODIM / FRENO", q: "1.720 L" },
-                { n: "FEROCE SC 10KG", q: "1.720 KG" },
-                { n: "PROFOL PRODUTIVIDADE", q: "1.720 KG" },
-                { n: "SAFENITH 20L", q: "1.720 L" },
-                { n: "BELYAN 10L", q: "1.030 L" },
-                { n: "KEYRA 5L", q: "860 L" },
-                { n: "KELLUS INOX RN 3KG", q: "858 KG" },
-                { n: "SPERTO / BRIGHT / ARKEIRO", q: "1.460 KG" },
-                { n: "BLAVITY 10L", q: "430 L" },
-                { n: "ABAMECTIN NORTOX 72", q: "180 L" }
-            ]
-        };
+        function switchInnerTabSaf(tabName) {
+            document.getElementById('tab-finance-saf').classList.add('hidden');
+            document.getElementById('tab-seeds-saf').classList.add('hidden');
+            document.getElementById('btn-finance-saf').className = "inner-tab-inactive-saf px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap border-b border-transparent";
+            document.getElementById('btn-seeds-saf').className = "inner-tab-inactive-saf px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap border-b border-transparent";
+            document.getElementById('tab-' + tabName + '-saf').classList.remove('hidden');
+            document.getElementById('btn-' + tabName + '-saf').className = "inner-tab-active-saf px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg whitespace-nowrap";
+        }
+        
+        function switchInnerTabSoja(tabName) {
+            document.getElementById('tab-finance-soja').classList.add('hidden');
+            document.getElementById('tab-seeds-soja').classList.add('hidden');
+            document.getElementById('btn-finance-soja').className = "inner-tab-inactive-soja px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap border-b border-transparent";
+            document.getElementById('btn-seeds-soja').className = "inner-tab-inactive-soja px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg hover:bg-gray-50 whitespace-nowrap border-b border-transparent";
+            document.getElementById('tab-' + tabName + '-soja').classList.remove('hidden');
+            document.getElementById('btn-' + tabName + '-soja').className = "inner-tab-active-soja px-4 md:px-6 py-3 text-xs md:text-sm transition-colors rounded-t-lg whitespace-nowrap";
+        }
 
-        const repiquesGerais = {
-            sementes: [
-                { n: "SEMENTE OLIMPO (80182RSF)", q: "09 BAG" }
-            ],
-            quimicos: [
-                { n: "SIMBIOSE NOD LIQUIDO", q: "1.200 DOS" },
-                { n: "STANDAK TOP 5L", q: "35 L" },
-                { n: "UP! SEEDS RN 5L", q: "15 L" },
-                { n: "ONIPAX 5L", q: "10 L" },
-                { n: "KELLUS INOX RN 3KG", q: "72 KG" }
-            ]
-        };
+        // ==========================================
+        // DATA & LOGIC: SOJA
+        // ==========================================
+        const totalSoja = 7270158.98;
+        function calcSoja() {
+            const area = parseFloat(document.getElementById('areaInputSoja').value) || 1;
+            const price = parseFloat(document.getElementById('priceInputSoja').value) || 1;
+            const costHa = totalSoja / area;
+            const sacks = totalSoja / price;
+            document.getElementById('costPerHaSoja').innerText = costHa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('totalSacksSoja').innerText = sacks.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + " scs";
+            document.getElementById('breakEvenSoja').innerText = (sacks / area).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
 
-        const rows = [
+        const rowsSoja = [
             {
-                title: "PACOTE SAFRA COMPLETO + ENXOFRE",
-                beneficiary: "Todos os 4 Sócios (Consolidado)",
-                date: "30/04/26 e 29/05/26",
-                val: 7069609.00,
-                color: "bg-emerald-50",
-                categories: pacoteSafraProdutos,
-                icon: "fa-layer-group"
+                title: "PACOTE SAFRA COMPLETO + ENXOFRE", beneficiary: "Todos os 4 Sócios", date: "30/04/26 e 29/05/26", val: 7069609.00, color: "bg-emerald-50", icon: "fa-layer-group",
+                categories: {
+                    sementes: [ { n: "SEM SOJA 80182RSF", q: "48 UN", s: 1 }, { n: "SEM SOJA 84186RSF", q: "53 UN", s: 1 }, { n: "SEM SOJA O820", q: "14 UN", s: 1 }, { n: "SEM SOJA 82178RSF", q: "10 UN", s: 1 }, { n: "SEM SOJA 67168RSF", q: "01 UN", s: 1 } ],
+                    adubos: [ { n: "SULFURGRAN 90 BG", q: "40 TO" }, { n: "MIB-FROELICH K", q: "35 TO" }, { n: "FERT KCL 00.00.60", q: "343 TO" }, { n: "FERT SSP 00.19.00", q: "379 TO" }, { n: "FERT TSP 00.46.00", q: "222 TO" } ],
+                    quimicos: [ { n: "ABAMECTIN 72", q: "180 L" }, { n: "ARKEIRO", q: "430 KG" }, { n: "ASSIST", q: "1.780 L" }, { n: "BELYAN", q: "1.030 L" }, { n: "BLAVITY", q: "440 L" }, { n: "BLOWOUT", q: "1.720 L" }, { n: "BRIGHT", q: "515 KG" }, { n: "CLETODIM", q: "1.300 L" }, { n: "FASTAC", q: "260 L" }, { n: "FEROCE", q: "1.720 KG" }, { n: "FRENO 240", q: "420 L" }, { n: "GLYPHOTAL WG", q: "6.860 KG" }, { n: "HELPER DESSEK", q: "260 L" }, { n: "HELPER NEUTRUM", q: "260 L" }, { n: "KELLUS INOX", q: "858 KG" }, { n: "KEYRA", q: "860 L" }, { n: "MBIO BRAD", q: "8.800 DOS" }, { n: "NOMOLT", q: "260 L" }, { n: "ONIPAX", q: "90 L" }, { n: "PROFOL", q: "1.720 KG" }, { n: "SAFENITH", q: "1.720 L" }, { n: "SOLUBPHOS", q: "180 L" }, { n: "SPERTO", q: "515 KG" }, { n: "STANDAK TOP", q: "170 L" }, { n: "UNIZEB GOLD", q: "5.160 KG" }, { n: "UP! SEEDS", q: "180 L" } ]
+                }
             },
             {
-                title: "REPIQUES DE PLANTIO (EXTRA)",
-                beneficiary: "Johnatan & Wilson",
-                date: "30/04/2026",
-                val: 142199.98,
-                color: "bg-blue-50",
-                categories: repiquesGerais,
-                icon: "fa-cart-plus"
+                title: "REPIQUES DE PLANTIO", beneficiary: "Johnatan & Wilson", date: "30/04/2026", val: 142199.98, color: "bg-blue-50", icon: "fa-cart-plus",
+                categories: {
+                    sementes: [ { n: "SEM SOJA 80182RSF", q: "09 UN", s: 1 } ],
+                    quimicos: [ { n: "SIMBIOSE NOD LIQUIDO", q: "1.200 DOS" }, { n: "STANDAK TOP", q: "35 L" }, { n: "UP! SEEDS", q: "15 L" }, { n: "ONIPAX", q: "10 L" }, { n: "KELLUS INOX", q: "72 KG" } ]
+                }
+            },
+            {
+                title: "AGRO AMAZÔNIA (Defensivos)", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 58350.00, color: "bg-purple-50", icon: "fa-shield-halved",
+                categories: { quimicos: [ { n: "EXALT", q: "75 L" } ] }
             }
         ];
 
-        // --- RENDER TABLE ---
-        const tableBody = document.getElementById('contractsTableBody');
-        const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        function renderSojaTable() {
+            const tbody = document.getElementById('tbodySoja');
+            rowsSoja.forEach((r, i) => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-gray-100 cursor-pointer border-b border-gray-100 ${r.color} group`;
+                tr.onclick = () => {
+                    const det = document.getElementById(`det-soja-${i}`);
+                    const ic = document.getElementById(`ic-soja-${i}`);
+                    det.classList.toggle('hidden'); ic.classList.toggle('rotate-90');
+                };
+                tr.innerHTML = `
+                    <td class="p-3 md:p-4 text-center text-emerald-600 sticky-col left-0 z-20"><i id="ic-soja-${i}" class="fa-solid fa-chevron-right transition-transform"></i></td>
+                    <td class="p-3 md:p-4 font-bold text-slate-800 sticky-col-2 left-10 z-20"><div class="bg-white p-2 rounded-lg shadow-sm text-emerald-600 hidden md:inline-block mr-2"><i class="fa-solid ${r.icon}"></i></div>${r.title}</td>
+                    <td class="p-3 md:p-4 text-gray-600 text-xs md:text-sm col-beneficiario">${r.beneficiary}</td>
+                    <td class="p-3 md:p-4 text-center text-xs whitespace-nowrap"><span class="bg-white border px-2 py-1 rounded shadow-sm">${r.date}</span></td>
+                    <td class="p-3 md:p-4 text-right font-bold text-slate-900">${BRL.format(r.val)}</td>
+                `;
+                tbody.appendChild(tr);
 
-        rows.forEach((r, index) => {
-            const row = document.createElement('tr');
-            row.className = `hover:bg-gray-100 cursor-pointer border-b border-gray-100 ${r.color} transition-colors group`;
-            row.onclick = () => toggleDetails(index);
-            
-            row.innerHTML = `
-                <td class="p-3 md:p-4 text-center text-emerald-600 details-toggle-icon no-print group-hover:scale-110 transition-transform"><i id="icon-${index}" class="fa-solid fa-chevron-right transition-transform duration-300"></i></td>
-                <td class="p-3 md:p-4 font-bold text-slate-800 flex items-center gap-3">
-                    <div class="bg-white p-2 rounded-lg shadow-sm text-emerald-600 hidden md:block"><i class="fa-solid ${r.icon}"></i></div>
-                    ${r.title}
-                </td>
-                <td class="p-3 md:p-4 text-gray-600 text-xs md:text-sm">${r.beneficiary}</td>
-                <td class="p-3 md:p-4 text-center"><span class="bg-white text-gray-700 py-1 px-2 rounded border border-gray-200 text-[10px] md:text-xs font-bold shadow-sm whitespace-nowrap">${r.date}</span></td>
-                <td class="p-3 md:p-4 text-right font-bold text-slate-900 text-sm md:text-lg whitespace-nowrap">${BRL.format(r.val)}</td>
-            `;
-            tableBody.appendChild(row);
-
-            const detailsRow = document.createElement('tr');
-            detailsRow.id = `details-${index}`;
-            detailsRow.className = "hidden product-details bg-white border-b border-gray-200";
-            
-            let catHTML = '';
-            if (r.categories.sementes) catHTML += buildCategoryBlock('🌱 Sementes', 'emerald', r.categories.sementes);
-            if (r.categories.adubos) catHTML += buildCategoryBlock('🪨 Adubos & Fertilizantes', 'amber', r.categories.adubos);
-            if (r.categories.quimicos) catHTML += buildCategoryBlock('🧪 Defensivos & Químicos', 'blue', r.categories.quimicos);
-
-            detailsRow.innerHTML = `
-                <td colspan="5" class="p-0">
-                    <div class="p-4 md:p-6 bg-gray-50 inner-shadow">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"> 
-                            ${catHTML}
-                        </div>
-                    </div>
-                </td>
-            `;
-            tableBody.appendChild(detailsRow);
-        });
-
-        // --- BADGE STYLE BUILDER ---
-        function buildCategoryBlock(title, color, items) {
-            return `
-                <div class="bg-white rounded-lg border border-${color}-200 shadow-sm overflow-hidden h-full">
-                    <h5 class="bg-${color}-50 text-${color}-800 px-3 md:px-4 py-2 font-bold text-xs md:text-sm uppercase tracking-wide border-b border-${color}-100 flex justify-between items-center">
-                        ${title}
-                        <i class="fa-solid fa-angle-down opacity-50"></i>
-                    </h5>
-                    <div class="p-2 md:p-3 flex flex-wrap gap-2">
-                        ${items.map(i => `
-                            <div class="inline-flex items-center border border-${color}-100 bg-${color}-50/40 rounded px-2 py-1 text-[10px] md:text-xs text-gray-700 hover:bg-${color}-100 transition-colors w-full md:w-auto justify-between md:justify-start">
-                                <span class="font-semibold text-gray-800 mr-2 truncate">${i.n}</span>
-                                <span class="bg-white border border-${color}-200 text-${color}-700 font-bold px-1.5 rounded-[3px] text-[9px] md:text-[10px] shadow-sm whitespace-nowrap">${i.q}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+                const detTr = document.createElement('tr');
+                detTr.id = `det-soja-${i}`; detTr.className = "hidden bg-white";
+                let catHTML = '';
+                if(r.categories.sementes) catHTML += buildCatSoja('🌱 Sementes', 'emerald', r.categories.sementes);
+                if(r.categories.adubos) catHTML += buildCatSoja('🪨 Adubos', 'amber', r.categories.adubos);
+                if(r.categories.quimicos) catHTML += buildCatSoja('🧪 Defensivos', 'blue', r.categories.quimicos);
+                detTr.innerHTML = `<td colspan="5" class="p-0"><div class="p-4 md:p-6 bg-gray-50 inner-shadow"><div class="grid grid-cols-1 md:grid-cols-3 gap-4">${catHTML}</div></div></td>`;
+                tbody.appendChild(detTr);
+            });
         }
-
-        function toggleDetails(index) {
-            const row = document.getElementById(`details-${index}`);
-            const icon = document.getElementById(`icon-${index}`);
-            if (row.classList.contains('hidden')) { row.classList.remove('hidden'); icon.classList.add('rotate-90'); } 
-            else { row.classList.add('hidden'); icon.classList.remove('rotate-90'); }
+        
+        function buildCatSoja(title, color, items) {
+            return `<div class="bg-white rounded border border-${color}-200"><h5 class="bg-${color}-50 text-${color}-800 px-3 py-2 font-bold text-xs uppercase border-b">${title}</h5><ul class="p-2 space-y-1 text-xs text-gray-600">${items.map(i=>`<li class="flex justify-between border-b border-dashed border-gray-100 pb-1 ${i.s ? 'seed-highlight' : ''}"><span class="font-medium flex items-center">${i.s ? '<i class="fa-solid fa-leaf text-green-600 mr-2"></i>' : ''}${i.n}</span><span class="font-bold bg-gray-100 px-1 rounded">${i.q}</span></li>`).join('')}</ul></div>`;
         }
-
-        function toggleAllDetails() {
-            rows.forEach((_, index) => {
-                const row = document.getElementById(`details-${index}`);
-                const icon = document.getElementById(`icon-${index}`);
-                row.classList.remove('hidden');
-                icon.classList.add('rotate-90');
+        
+        function toggleAllDetailsSoja() {
+            rowsSoja.forEach((_, i) => {
+                document.getElementById(`det-soja-${i}`).classList.remove('hidden');
+                document.getElementById(`ic-soja-${i}`).classList.add('rotate-90');
             });
         }
 
-        // --- GRAPHS ---
-        Chart.register(ChartDataLabels);
+        let chartProdSoja, chartCatSoja;
+        function initChartsSoja() {
+            chartProdSoja = new Chart(document.getElementById('chartProducerSoja').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['Johnatan', 'Wilson', 'Wilmar', 'Clovis'], datasets: [{ data: [1903548.98, 1802747.00, 1785714.00, 1778149.00], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'], borderRadius: 4 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'end', formatter: v => 'R$ '+(v/1000000).toFixed(2)+'M', font: {weight: 'bold', size: getFontSize()} } }, scales: { y: {display: false, min: 1500000, grace: '20%'}, x: {grid: {display: false}} } }
+            });
+            chartCatSoja = new Chart(document.getElementById('chartCatSoja'), {
+                type: 'doughnut',
+                data: { labels: ['Agrex\nR$ 6.8M', 'Enxofre\nR$ 260k', 'Repiques\nR$ 142k', 'Agro Amz.\nR$ 58k'], datasets: [{ data: [6809609.00, 260000.00, 142199.98, 58350.00], backgroundColor: ['#059669', '#f59e0b', '#3b82f6', '#8b5cf6'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/7270158.98).toFixed(0)+"%" } } }
+            });
+        }
 
-        // Responsive Font Size Logic
-        const getFontSize = () => window.innerWidth < 768 ? 9 : 12;
+        // ==========================================
+        // DATA & LOGIC: SAFRINHA
+        // ==========================================
+        const totalSafrinha = 2503182.64;
+        function calcSafrinha() {
+            const area = parseFloat(document.getElementById('areaInputSafrinha').value) || 1;
+            const price = parseFloat(document.getElementById('priceInputSafrinha').value) || 1;
+            const costHa = totalSafrinha / area;
+            const sacks = totalSafrinha / price;
+            document.getElementById('costPerHaSafrinha').innerText = costHa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('totalSacksSafrinha').innerText = sacks.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + " scs";
+            document.getElementById('breakEvenSafrinha').innerText = (sacks / area).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
 
-        // Chart 1: Producers
-        const ctxProducer = document.getElementById('producerChart').getContext('2d');
-        new Chart(ctxProducer, {
-            type: 'bar',
-            data: {
-                labels: ['Johnatan', 'Wilson', 'Wilmar', 'Clovis'],
-                datasets: [{
-                    label: 'Total (R$)',
-                    data: [1887988.98, 1787187.00, 1774044.00, 1762589.00],
-                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: { padding: { top: 40 } },
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'end',
-                        formatter: v => 'R$ ' + (v/1000000).toFixed(2) + ' M',
-                        font: { weight: 'bold', size: getFontSize() },
-                        color: '#333',
-                        clip: false
-                    }
-                },
-                scales: {
-                    y: { display: false, min: 1500000, grace: '30%' },
-                    x: { 
-                        grid: { display: false },
-                        ticks: { font: { size: getFontSize() } }
-                    }
-                }
-            }
-        });
+        const rowsSafrinha = [
+            { title: "AGREX DO BRASIL", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 1685644.80, color: "bg-amber-50", icon: "fa-flask", prods: [{n:"ABACUS HC 5L", q:"240 L"}, {n:"ASSIST 20L", q:"1.000 L"}, {n:"BRIGHT 5KG", q:"240 KG"}, {n:"FERT 10.46.00 + 9%S", q:"88 TON"}, {n:"FERT 30.00.20 UREIA", q:"255 TON"}, {n:"HELPER DESSEK", q:"25 L"}, {n:"HELPER NEUTRUM", q:"75 L"}, {n:"IMPROVER MAX 5L", q:"80 L"}, {n:"MBIO AZO 120 DOS", q:"1.920 DOS"}, {n:"SEM MILHO MG540PWU", q:"338 SACOS", s:1}] },
+            { title: "PRODUTÉCNICA", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 354000.00, color: "bg-purple-50", icon: "fa-vial", prods: [{n:"Calaris", q:"960 LT"}, {n:"Curyom 550 EC", q:"800 LT"}, {n:"Match EC", q:"640 LT"}, {n:"Megafol", q:"800 LT"}, {n:"Azimut", q:"400 LT"}, {n:"BREVANT B2701 PWC", q:"195 SACOS", s:1}, {n:"Sulfato SK", q:"400 LT"}, {n:"Victrato", q:"1 LT"}] },
+            { title: "BAYER / DEKALB", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 270017.84, color: "bg-green-50", icon: "fa-seedling", prods: [{n:"DKB360PRO3 SAF 60M", q:"360 SACOS", s:1}] },
+            { title: "AGRO AMAZÔNIA", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 162000.00, color: "bg-blue-50", icon: "fa-shield-halved", prods: [{n:"METOMIL 215 SL", q:"6.400 L"}, {n:"GALIN", q:"240 L"}] },
+            { title: "SYNAGRO", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 31520.00, color: "bg-gray-50", icon: "fa-spray-can", prods: [{n:"S-MAX 20L", q:"800 L"}] }
+        ];
 
-        // Chart 2: Categories (Values Added as Labels - OPTIMIZED)
-        new Chart(document.getElementById('categoryChart'), {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    'Pacote Safra (Principal)\nR$ 6.809.609,00', 
-                    'Enxofre\nR$ 260k', 
-                    'Repiques\nR$ 142k'
-                ],
-                datasets: [{
-                    data: [6809609.00, 260000.00, 142199.98],
-                    backgroundColor: ['#059669', '#f59e0b', '#3b82f6'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '55%',
-                layout: {
-                    padding: {
-                        top: 10, bottom: 10, left: 10, right: 10
-                    }
-                },
-                plugins: {
-                    legend: { 
-                        position: window.innerWidth < 768 ? 'bottom' : 'right', 
-                        align: 'center', 
-                        labels: { 
-                            boxWidth: 10, 
-                            font: {size: getFontSize(), weight: 'bold'}, 
-                            padding: window.innerWidth < 768 ? 10 : 20 
-                        } 
-                    },
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: getFontSize() },
-                        formatter: (v, ctx) => {
-                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            return (v*100 / sum).toFixed(0) + "%";
-                        }
-                    }
-                }
-            }
-        });
+        function renderSafrinhaTable() {
+            const tbody = document.getElementById('tbodySafrinha');
+            rowsSafrinha.forEach((r, i) => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-gray-100 cursor-pointer border-b border-gray-100 ${r.color} group`;
+                tr.onclick = () => {
+                    document.getElementById(`det-saf-${i}`).classList.toggle('hidden');
+                    document.getElementById(`ic-saf-${i}`).classList.toggle('rotate-90');
+                };
+                tr.innerHTML = `
+                    <td class="p-3 md:p-4 text-center text-amber-600 sticky-col left-0 z-20"><i id="ic-saf-${i}" class="fa-solid fa-chevron-right transition-transform"></i></td>
+                    <td class="p-3 md:p-4 font-bold text-slate-800 sticky-col-2 left-10 z-20"><div class="bg-white p-2 rounded-lg shadow-sm text-amber-600 hidden md:inline-block mr-2"><i class="fa-solid ${r.icon}"></i></div>${r.title}</td>
+                    <td class="p-3 md:p-4 text-gray-600 text-xs md:text-sm col-beneficiario">${r.beneficiary}</td>
+                    <td class="p-3 md:p-4 text-center text-xs whitespace-nowrap"><span class="bg-white border px-2 py-1 rounded shadow-sm">${r.date}</span></td>
+                    <td class="p-3 md:p-4 text-right font-bold text-slate-900">${BRL.format(r.val)}</td>
+                `;
+                tbody.appendChild(tr);
 
-        // Inicializar Cálculos
-        calculateMetrics();
+                const detTr = document.createElement('tr');
+                detTr.id = `det-saf-${i}`; detTr.className = "hidden bg-white";
+                detTr.innerHTML = `<td colspan="5" class="p-0"><div class="p-4 md:p-6 bg-gray-50 inner-shadow"><div class="bg-white rounded border border-gray-200"><h5 class="bg-gray-50 text-gray-800 px-3 py-2 font-bold text-xs uppercase border-b">Lista de Produtos</h5><ul class="p-2 space-y-1 text-xs text-gray-600">${r.prods.map(p=>`<li class="flex justify-between border-b border-dashed border-gray-100 pb-1 ${p.s?'seed-highlight':''}"><span class="font-medium flex items-center">${p.s?'<i class="fa-solid fa-leaf text-green-600 mr-2"></i>':''}${p.n}</span><span class="font-bold bg-gray-100 px-1 rounded">${p.q}</span></li>`).join('')}</ul></div></div></td>`;
+                tbody.appendChild(detTr);
+            });
+        }
+        function toggleAllDetailsSafrinha() {
+            rowsSafrinha.forEach((_, i) => {
+                document.getElementById(`det-saf-${i}`).classList.remove('hidden');
+                document.getElementById(`ic-saf-${i}`).classList.add('rotate-90');
+            });
+        }
+
+        let chartProdSaf, chartCatSaf;
+        function initChartsSafrinha() {
+            chartProdSaf = new Chart(document.getElementById('chartProducerSafrinha').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['Clovis', 'Johnatan', 'Wilmar', 'Wilson'], datasets: [{ data: [630161.66, 625414.16, 624744.16, 622862.66], backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'], borderRadius: 4 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'end', formatter: v => 'R$ '+(v/1000).toFixed(0)+'k', font: {weight: 'bold', size: getFontSize()} } }, scales: { y: {display: false, min: 400000, grace: '20%'}, x: {grid: {display: false}} } }
+            });
+            chartCatSaf = new Chart(document.getElementById('chartCatSafrinha'), {
+                type: 'doughnut',
+                data: { labels: ['Agrex\nR$ 1.68M', 'Produtécnica\nR$ 354k', 'Dekalb\nR$ 270k', 'Agro Amz.\nR$ 162k', 'Synagro\nR$ 31k'], datasets: [{ data: [1685644.80, 354000.00, 270017.84, 162000.00, 31520.00], backgroundColor: ['#059669', '#a855f7', '#f59e0b', '#3b82f6', '#6b7280'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/2503182.64).toFixed(0)+"%" } } }
+            });
+        }
+
+        // INIT
+        window.onload = () => {
+            renderSojaTable();
+            renderSafrinhaTable();
+            calcSoja();
+            calcSafrinha();
+            initChartsSoja();
+            initChartsSafrinha();
+        };
     </script>
 </body>
 </html>
