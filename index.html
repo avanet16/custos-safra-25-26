@@ -137,7 +137,7 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Investimento Soja</p>
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 7.270.158,98</h2>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 7.219.416,98</h2>
                     </div>
                     <div class="bg-emerald-50 p-3 rounded-full text-emerald-600"><i class="fa-solid fa-money-bill-wheat text-xl"></i></div>
                 </div>
@@ -147,11 +147,11 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Vencimento (30/04)</p>
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 6.951.808,98</h2>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 6.959.416,98</h2>
                     </div>
                     <div class="bg-orange-50 p-3 rounded-full text-orange-600"><i class="fa-regular fa-calendar-check text-xl"></i></div>
                 </div>
-                <p class="text-xs text-orange-600/80 mt-3 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 95,6% do Total</p>
+                <p class="text-xs text-orange-600/80 mt-3 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 96,4% do Total</p>
             </div>
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 card sm:col-span-2 lg:col-span-1">
                 <div class="flex justify-between items-start">
@@ -214,7 +214,7 @@
                     <tfoot class="bg-emerald-50 font-bold text-emerald-900 border-t-2 border-emerald-200">
                         <tr>
                             <td colspan="3" class="p-3 md:p-4 text-right uppercase text-sm md:text-lg">Total Geral Soja</td>
-                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 7.270.158,98</td>
+                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 7.219.416,98</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -231,7 +231,6 @@
                 </div>
             </div>
             <div class="p-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-                <!-- Variedades Soja -->
                 <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center hover:shadow-md transition-shadow">
                     <span class="text-[10px] font-bold text-gray-400 uppercase mb-1">AGREX</span>
                     <h4 class="text-sm md:text-base font-bold text-gray-800">80182RSF</h4>
@@ -309,7 +308,7 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Custo Safrinha</p>
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 2.503.182,64</h2>
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mt-1 tracking-tight">R$ 2.565.836,14</h2>
                     </div>
                     <div class="bg-amber-50 p-3 rounded-full text-amber-600"><i class="fa-solid fa-sack-dollar text-xl"></i></div>
                 </div>
@@ -330,7 +329,7 @@
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider">Fornecedor Principal</p>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800 mt-1">AGREX DO BRASIL</h2>
-                        <p class="text-xs text-gray-500 mt-0.5">Representa 67% do Custo</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Representa 65,7% do Custo</p>
                     </div>
                     <div class="bg-blue-50 p-3 rounded-full text-blue-600"><i class="fa-solid fa-handshake text-xl"></i></div>
                 </div>
@@ -386,7 +385,7 @@
                     <tfoot class="bg-amber-50 font-bold text-amber-900 border-t-2 border-amber-200">
                         <tr>
                             <td colspan="3" class="p-3 md:p-4 text-right uppercase text-sm md:text-lg">Total Geral Safrinha</td>
-                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 2.503.182,64</td>
+                            <td class="p-3 md:p-4 text-right text-lg md:text-2xl whitespace-nowrap">R$ 2.565.836,14</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -480,7 +479,7 @@
         // ==========================================
         // DATA & LOGIC: SOJA
         // ==========================================
-        const totalSoja = 7270158.98;
+        const totalSoja = 7219416.98;
         function calcSoja() {
             const area = parseFloat(document.getElementById('areaInputSoja').value) || 1;
             const price = parseFloat(document.getElementById('priceInputSoja').value) || 1;
@@ -501,15 +500,11 @@
                 }
             },
             {
-                title: "REPIQUES DE PLANTIO", beneficiary: "Johnatan & Wilson", date: "30/04/2026", val: 142199.98, color: "bg-blue-50", icon: "fa-cart-plus",
+                title: "REPIQUES DE PLANTIO", beneficiary: "Johnatan & Wilson", date: "30/04/2026", val: 149807.98, color: "bg-blue-50", icon: "fa-cart-plus",
                 categories: {
                     sementes: [ { n: "SEM SOJA 80182RSF", q: "09 UN", s: 1 } ],
-                    quimicos: [ { n: "SIMBIOSE NOD LIQUIDO", q: "1.200 DOS" }, { n: "STANDAK TOP", q: "35 L" }, { n: "UP! SEEDS", q: "15 L" }, { n: "ONIPAX", q: "10 L" }, { n: "KELLUS INOX", q: "72 KG" } ]
+                    quimicos: [ { n: "SIMBIOSE NOD LIQUIDO", q: "1.200 DOS" }, { n: "STANDAK TOP", q: "35 L" }, { n: "UP! SEEDS", q: "15 L" }, { n: "ONIPAX", q: "10 L" }, { n: "KELLUS INOX", q: "72 KG" }, { n: "TRIUNFO", q: "240 L" } ]
                 }
-            },
-            {
-                title: "AGRO AMAZÔNIA (Defensivos)", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 58350.00, color: "bg-purple-50", icon: "fa-shield-halved",
-                categories: { quimicos: [ { n: "EXALT", q: "75 L" } ] }
             }
         ];
 
@@ -558,20 +553,20 @@
         function initChartsSoja() {
             chartProdSoja = new Chart(document.getElementById('chartProducerSoja').getContext('2d'), {
                 type: 'bar',
-                data: { labels: ['Johnatan', 'Wilson', 'Wilmar', 'Clovis'], datasets: [{ data: [1903548.98, 1802747.00, 1785714.00, 1778149.00], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'], borderRadius: 4 }] },
+                data: { labels: ['Johnatan', 'Wilson', 'Wilmar', 'Clovis'], datasets: [{ data: [1891792.98, 1790991.00, 1774044.00, 1762589.00], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'], borderRadius: 4 }] },
                 options: { maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'end', formatter: v => 'R$ '+(v/1000000).toFixed(2)+'M', font: {weight: 'bold', size: getFontSize()} } }, scales: { y: {display: false, min: 1500000, grace: '20%'}, x: {grid: {display: false}} } }
             });
             chartCatSoja = new Chart(document.getElementById('chartCatSoja'), {
                 type: 'doughnut',
-                data: { labels: ['Agrex\nR$ 6.8M', 'Enxofre\nR$ 260k', 'Repiques\nR$ 142k', 'Agro Amz.\nR$ 58k'], datasets: [{ data: [6809609.00, 260000.00, 142199.98, 58350.00], backgroundColor: ['#059669', '#f59e0b', '#3b82f6', '#8b5cf6'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/7270158.98).toFixed(0)+"%" } } }
+                data: { labels: ['Pacote Safra\nR$ 6.8M', 'Enxofre\nR$ 260k', 'Repiques\nR$ 149k'], datasets: [{ data: [6809609.00, 260000.00, 149807.98], backgroundColor: ['#059669', '#f59e0b', '#3b82f6'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/7219416.98).toFixed(0)+"%" } } }
             });
         }
 
         // ==========================================
         // DATA & LOGIC: SAFRINHA
         // ==========================================
-        const totalSafrinha = 2503182.64;
+        const totalSafrinha = 2565836.14;
         function calcSafrinha() {
             const area = parseFloat(document.getElementById('areaInputSafrinha').value) || 1;
             const price = parseFloat(document.getElementById('priceInputSafrinha').value) || 1;
@@ -586,7 +581,7 @@
             { title: "AGREX DO BRASIL", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 1685644.80, color: "bg-amber-50", icon: "fa-flask", prods: [{n:"ABACUS HC 5L", q:"240 L"}, {n:"ASSIST 20L", q:"1.000 L"}, {n:"BRIGHT 5KG", q:"240 KG"}, {n:"FERT 10.46.00 + 9%S", q:"88 TON"}, {n:"FERT 30.00.20 UREIA", q:"255 TON"}, {n:"HELPER DESSEK", q:"25 L"}, {n:"HELPER NEUTRUM", q:"75 L"}, {n:"IMPROVER MAX 5L", q:"80 L"}, {n:"MBIO AZO 120 DOS", q:"1.920 DOS"}, {n:"SEM MILHO MG540PWU", q:"338 SACOS", s:1}] },
             { title: "PRODUTÉCNICA", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 354000.00, color: "bg-purple-50", icon: "fa-vial", prods: [{n:"Calaris", q:"960 LT"}, {n:"Curyom 550 EC", q:"800 LT"}, {n:"Match EC", q:"640 LT"}, {n:"Megafol", q:"800 LT"}, {n:"Azimut", q:"400 LT"}, {n:"BREVANT B2701 PWC", q:"195 SACOS", s:1}, {n:"Sulfato SK", q:"400 LT"}, {n:"Victrato", q:"1 LT"}] },
             { title: "BAYER / DEKALB", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 270017.84, color: "bg-green-50", icon: "fa-seedling", prods: [{n:"DKB360PRO3 SAF 60M", q:"360 SACOS", s:1}] },
-            { title: "AGRO AMAZÔNIA", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 162000.00, color: "bg-blue-50", icon: "fa-shield-halved", prods: [{n:"METOMIL 215 SL", q:"6.400 L"}, {n:"GALIN", q:"240 L"}] },
+            { title: "AGRO AMAZÔNIA", beneficiary: "Todos os 4 Sócios", date: "30/08/2026", val: 224653.50, color: "bg-blue-50", icon: "fa-shield-halved", prods: [{n:"METOMIL 215 SL", q:"6.400 L"}, {n:"GALIN", q:"240 L"}, {n:"EXALT", q:"85 L"}] },
             { title: "SYNAGRO", beneficiary: "Todos os 4 Sócios", date: "31/08/2026", val: 31520.00, color: "bg-gray-50", icon: "fa-spray-can", prods: [{n:"S-MAX 20L", q:"800 L"}] }
         ];
 
@@ -625,13 +620,13 @@
         function initChartsSafrinha() {
             chartProdSaf = new Chart(document.getElementById('chartProducerSafrinha').getContext('2d'), {
                 type: 'bar',
-                data: { labels: ['Clovis', 'Johnatan', 'Wilmar', 'Wilson'], datasets: [{ data: [630161.66, 625414.16, 624744.16, 622862.66], backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'], borderRadius: 4 }] },
+                data: { labels: ['Clovis', 'Johnatan', 'Wilmar', 'Wilson'], datasets: [{ data: [645825.04, 641077.54, 640407.53, 638526.03], backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'], borderRadius: 4 }] },
                 options: { maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'end', formatter: v => 'R$ '+(v/1000).toFixed(0)+'k', font: {weight: 'bold', size: getFontSize()} } }, scales: { y: {display: false, min: 400000, grace: '20%'}, x: {grid: {display: false}} } }
             });
             chartCatSaf = new Chart(document.getElementById('chartCatSafrinha'), {
                 type: 'doughnut',
-                data: { labels: ['Agrex\nR$ 1.68M', 'Produtécnica\nR$ 354k', 'Dekalb\nR$ 270k', 'Agro Amz.\nR$ 162k', 'Synagro\nR$ 31k'], datasets: [{ data: [1685644.80, 354000.00, 270017.84, 162000.00, 31520.00], backgroundColor: ['#059669', '#a855f7', '#f59e0b', '#3b82f6', '#6b7280'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/2503182.64).toFixed(0)+"%" } } }
+                data: { labels: ['Agrex\nR$ 1.68M', 'Produtécnica\nR$ 354k', 'Dekalb\nR$ 270k', 'Agro Amz.\nR$ 224k', 'Synagro\nR$ 31k'], datasets: [{ data: [1685644.80, 354000.00, 270017.84, 224653.50, 31520.00], backgroundColor: ['#059669', '#a855f7', '#f59e0b', '#3b82f6', '#6b7280'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, cutout: '55%', plugins: { legend: {position: window.innerWidth < 768 ? 'bottom' : 'right', labels: {font:{size: getFontSize()}}}, datalabels: { color: '#fff', font: {weight: 'bold', size: getFontSize()}, formatter: (v,ctx) => (v*100/2565836.14).toFixed(0)+"%" } } }
             });
         }
 
